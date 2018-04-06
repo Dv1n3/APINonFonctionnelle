@@ -1,0 +1,4 @@
+services:
+#    kl_api.example:
+#        class: KL\ApiBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
