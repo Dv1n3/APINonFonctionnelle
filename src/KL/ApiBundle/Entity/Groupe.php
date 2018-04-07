@@ -29,7 +29,7 @@ class Groupe
     private $nom;
 
     /**
-     * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\User", mappedBy="groups")
+     * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\User", mappedBy="groupes")
      */
     private $users;
 
@@ -37,10 +37,10 @@ class Groupe
      * Groupe constructor.
      * @param string $nom
      */
-    public function __construct($nom)
+    /*public function __construct($nom)
     {
         $this->nom = $nom;
-    }
+    }*/
 
 
     /**

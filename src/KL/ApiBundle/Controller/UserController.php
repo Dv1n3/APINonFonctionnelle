@@ -9,6 +9,7 @@
 namespace KL\ApiBundle\Controller;
 
 
+use KL\ApiBundle\Entity\Groupe;
 use KL\ApiBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -16,59 +17,82 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class UserController extends Controller
 {
     /**
-     * @Get(
-     *     path = "/users",
-     *     name = "users_list")
-     * @View
+     * @Route("/users", name="show_all_users")
+     * @Method({"GET"})
+     *
+     * @return Response
      */
-    public function getUsersAction(Request $request){
+    public function showAllUsersAction()
+    {
         $users = $this->getDoctrine()
             ->getRepository('KLApiBundle:User')
             ->findAll();
 
-        $content = array();
-        foreach ($users as $user) {
-            $content[] = [
-                "id" => $user->getId(),
-                "email" => $user->getEmail(),
-                "nom" => $user->getNom(),
-                "prenom" => $user->getPrenom(),
-                "actif" => $user->getActif(),
-                "dateCreation" => $user->getDateCreation()
-            ];
-        }
-        return new JsonResponse($content);
+        $data = $this->get('serializer')->serialize($users, 'json');
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+
     }
 
     /**
-     * @Get(
-     *     path = "/users/{id}",
-     *     name = "users_list",
-     *     requirements = {"id"="\d+"}
-     * )
+     * @Route("/users/{id}", name="show_user")
+     * @Method({"GET"})
      */
-    public function getOneUsersAction(Request $request){
-        $users = $this->getDoctrine()
-            ->getRepository('KLApiBundle:User')
-            ->findOneBy('id');
+    public function showOneUserAction(User $user)
+    {
+        $user = $this->getDoctrine()->getRepository('KLApiBundle:User')->findOneBy(array('id' => $user->getId()));
+        $data = $this->get('serializer')->serialize($user, 'json');
 
-        $content = array();
-        foreach ($users as $user) {
-            $content[] = [
-                "id" => $user->getId(),
-                "email" => $user->getEmail(),
-                "nom" => $user->getNom(),
-                "prenom" => $user->getPrenom(),
-                "actif" => $user->getActif(),
-                "dateCreation" => $user->getDateCreation()
-            ];
-        }
-        return new JsonResponse($content);
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
+    /**
+     * @Route("/users", name="create_user")
+     * @Method({"POST"})
+     */
+    public function createUserAction(Request $request)
+    {
+        $data = $request->getContent();
+        $user = $this->get('serializer')
+            ->deserialize($data, 'KLApiBundle\Entity\User', 'json');
+
+        dump($user);
+        /*$em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return new Response('', Response::HTTP_CREATED);
+    }
+
+
+
+
+    /**
+     * @Route("/users/{id}", name="show_user")
+     * @Method({"GET"})
+     */
+        public function editUserAction(User $user)
+    {
+        $user = $this->getDoctrine()->getRepository('KLApiBundle:User')->findOneBy(array('id' => $user->getId()));
+        $data = $this->get('serializer')->serialize($user, 'json');
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
 
 
 }
