@@ -70,14 +70,14 @@ class User
      * @param bool $actif
      * @param \DateTime $dateCreation
      */
-    /*public function __construct($email, $nom, $prenom, $actif, \DateTime $dateCreation)
+    public function __construct($email, $nom, $prenom, $actif, \DateTime $dateCreation)
     {
         $this->email = $email;
         $this->nom = $nom;
         $this->prenom = $prenom;
         $this->actif = $actif;
         $this->dateCreation = $dateCreation;
-    }*/
+    }
 
 
     /**

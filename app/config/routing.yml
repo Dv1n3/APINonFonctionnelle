@@ -1,8 +1,9 @@
 kl_api:
     resource: "@KLApiBundle/Controller/"
-    type:     annotation
+    type:     rest
     prefix:   /
 
 app:
     resource: '@AppBundle/Controller/'
     type: annotation
+

@@ -11,6 +11,7 @@ namespace KL\ApiBundle\Controller;
 
 use KL\ApiBundle\Entity\Groupe;
 use KL\ApiBundle\Entity\User;
+use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -18,81 +19,57 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class UserController extends Controller
 {
     /**
-     * @Route("/users", name="show_all_users")
-     * @Method({"GET"})
+     * @Rest\View()
+     * @Rest\Get("/users")
      *
-     * @return Response
+     * @return JsonResponse|Response
      */
-    public function showAllUsersAction()
+    public function getUsersAction()
     {
         $users = $this->getDoctrine()
             ->getRepository('KLApiBundle:User')
             ->findAll();
 
-        $data = $this->get('serializer')->serialize($users, 'json');
+        if (empty($users)) {
+            return new JsonResponse(["message", 'User not found'], Response::HTTP_NOT_FOUND);
+        }
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
-
+        return $users;
     }
 
     /**
-     * @Route("/users/{id}", name="show_user")
-     * @Method({"GET"})
+     * @Rest\View()
+     * @Rest\Get("/users/{id}")
+     *
+     * @param $id
+     * @param Request $request
+     * @return Response
      */
-    public function showOneUserAction(User $user)
+    public function getUserAction($id, Request $request)
     {
-        $user = $this->getDoctrine()->getRepository('KLApiBundle:User')->findOneBy(array('id' => $user->getId()));
-        $data = $this->get('serializer')->serialize($user, 'json');
+        $user = $this->getDoctrine()
+            ->getRepository('KLApiBundle:User')
+            ->find($id);
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
+        if (empty($user)) {
+            return new JsonResponse(["message", 'User not found'], Response::HTTP_NOT_FOUND);
+        }
 
-        return $response;
+        return $user;
     }
-    /**
-     * @Route("/users", name="create_user")
-     * @Method({"POST"})
-     */
-    public function createUserAction(Request $request)
-    {
-        $data = $request->getContent();
-        $user = $this->get('serializer')
-            ->deserialize($data, 'KLApiBundle\Entity\User', 'json');
-
-        dump($user);
-        /*$em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
-
-        return new Response('', Response::HTTP_CREATED);
-    }
-
-
-
 
     /**
-     * @Route("/users/{id}", name="show_user")
-     * @Method({"GET"})
+     * @Rest\View()
+     * @Rest\Post("/users")
      */
-        public function editUserAction(User $user)
+    public function postUsersAction(Request $request)
     {
-        $user = $this->getDoctrine()->getRepository('KLApiBundle:User')->findOneBy(array('id' => $user->getId()));
-        $data = $this->get('serializer')->serialize($user, 'json');
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
     }
-
-
-
 }

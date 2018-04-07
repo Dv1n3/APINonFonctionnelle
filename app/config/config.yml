@@ -71,6 +71,8 @@ swiftmailer:
     spool: { type: memory }
 
 fos_rest:
+    routing_loader:
+        include_format: false
     body_converter:
         enabled: true
     view:
