@@ -10,4 +10,5 @@ namespace KL\ApiBundle\Repository;
  */
 class GroupeRepository extends \Doctrine\ORM\EntityRepository
 {
+
 }

@@ -10,4 +10,5 @@ namespace KL\ApiBundle\Repository;
  */
 class UserRepository extends \Doctrine\ORM\EntityRepository
 {
+
 }

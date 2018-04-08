@@ -86,6 +86,7 @@ class Groupe
      */
     public function addUser(\KL\ApiBundle\Entity\User $user)
     {
+
         $this->users[] = $user;
 
         return $this;

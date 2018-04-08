@@ -30,14 +30,15 @@ class UserController extends Controller
      *
      * @return JsonResponse|Response
      */
-    public function getUsersAction()
+    public function getUsersAction(Request $requests)
     {
         $users = $this->getDoctrine()
             ->getRepository('KLApiBundle:User')
             ->findAll();
+        //->getUserWithGroups();
 
         if (empty($users)) {
-            return new JsonResponse(["message", 'User not found'], Response::HTTP_NOT_FOUND);
+            return new JsonResponse(["message", 'Users not found'], Response::HTTP_NOT_FOUND);
         }
 
         return $users;
@@ -65,11 +66,22 @@ class UserController extends Controller
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(statusCode=Response::HTTP_CREATED)
      * @Rest\Post("/users")
      */
     public function postUsersAction(Request $request)
     {
+        $user = new User();
+        $user->setEmail($request->get('email'))
+            ->setNom($request->get('nom'))
+            ->setPrenom($request->get('prenom'))
+            ->setActif($request->get('actif'))
+            ->setDateCreation(new \DateTime());
 
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return $user;
     }
 }

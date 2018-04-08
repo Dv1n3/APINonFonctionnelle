@@ -40,12 +40,6 @@ class GroupController extends Controller
             return new JsonResponse(["message", 'Groups not found'], Response::HTTP_NOT_FOUND);
         }
 
-        /*$data = $this->get('serializer')->serialize($groups, 'json');
-
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;*/
         return $groups;
     }
 
@@ -66,14 +60,39 @@ class GroupController extends Controller
         if (empty($group)) {
             return new JsonResponse(["message", 'Group not found'], Response::HTTP_NOT_FOUND);
         }
-
         return $group;
-        /*$data = $this->get('serializer')->serialize($group, 'json');
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
+    }
 
-        return $response;*/
+    /**
+     * @Rest\View(statusCode=Response::HTTP_CREATED)
+     * @Rest\Post("/groups")
+     */
+    public function postGroupssAction(Request $request)
+    {
+        $groupe = new Groupe();
+        $groupe->setNom($request->get('nom'));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($groupe);
+        $em->flush();
+
+        return $groupe;
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Put("/groups/{id]")
+     */
+    public function putGroupAction(Request $request)
+    {
+        $groupe = $this->getDoctrine()
+            ->getRepository('KLApiBundle:Groupe')
+            ->find($request->get('id'));
+    if (empty($groupe)){
+        return new JsonResponse(['message' => 'place not found'], Response::HTTP_NOT_FOUND);
+    }
+
 
     }
 }
