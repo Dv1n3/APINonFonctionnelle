@@ -83,7 +83,49 @@ class UserController extends Controller
             $em->persist($user);
             $em->flush();
             return $user;
+        } else
+            return $form;
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Put("/users/{id}")
+     */
+    public function putUserAction(Request $request)
+    {
+        return $this->updateUser($request, true);
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Patch("/users/{id}")
+     */
+    public function patchUserAction(Request $request)
+    {
+        return $this->updateUser($request, false);
+    }
+
+
+    public function updateUser(Request $request, $clearMissing)
+    {
+        $user = $this->getDoctrine()
+            ->getRepository('KLApiBundle:User')
+            ->find($request->get('id'));
+
+        if (empty($user)) {
+            return new JsonResponse(["Message" => "User not found"], Response::HTTP_NOT_FOUND);
         }
-        else return $form;
+
+        $form = $this->createForm(UserType::class, $user);
+
+        $form->submit($request->request->all(), $clearMissing);
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($user);
+            $em->flush();
+            return $user;
+        } else
+            return $form;
     }
 }
