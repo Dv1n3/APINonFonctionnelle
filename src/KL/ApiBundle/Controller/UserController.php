@@ -12,6 +12,7 @@ namespace KL\ApiBundle\Controller;
 use KL\ApiBundle\Entity\Groupe;
 use KL\ApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations\Get;
+use KL\ApiBundle\Form\Type\UserType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -72,16 +73,17 @@ class UserController extends Controller
     public function postUsersAction(Request $request)
     {
         $user = new User();
-        $user->setEmail($request->get('email'))
-            ->setNom($request->get('nom'))
-            ->setPrenom($request->get('prenom'))
-            ->setActif($request->get('actif'))
-            ->setDateCreation(new \DateTime());
+        $form = $this->createForm(UserType::class, $user);
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
+        $form->submit($request->request->all());
 
-        return $user;
+        if ($form->isValid()) {
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($user);
+            $em->flush();
+            return $user;
+        }
+        else return $form;
     }
 }

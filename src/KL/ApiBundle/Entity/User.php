@@ -64,19 +64,11 @@ class User
 
     /**
      * User constructor.
-     * @param string $email
-     * @param string $nom
-     * @param string $prenom
-     * @param bool $actif
      * @param \DateTime $dateCreation
      */
-   public function __construct($email, $nom, $prenom, $actif, \DateTime $dateCreation)
+    public function __construct()
     {
-        $this->email = $email;
-        $this->nom = $nom;
-        $this->prenom = $prenom;
-        $this->actif = $actif;
-        $this->dateCreation = $dateCreation;
+        $this->dateCreation = new \DateTime();
     }
 
 
@@ -106,8 +98,6 @@ class User
 
     /**
      * Get email
-     *
-     * @return string
      */
     public function getEmail()
     {
@@ -116,10 +106,6 @@ class User
 
     /**
      * Set nom
-     *
-     * @param string $nom
-     *
-     * @return User
      */
     public function setNom($nom)
     {
@@ -217,7 +203,7 @@ class User
      *
      * @return User
      */
-    public function addGroupe(\KL\ApiBundle\Entity\Groupe $groupe)
+    public function addGroupe(Groupe $groupe)
     {
         $this->groupes[] = $groupe;
 
