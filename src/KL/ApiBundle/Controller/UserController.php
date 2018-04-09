@@ -9,6 +9,7 @@
 namespace KL\ApiBundle\Controller;
 
 
+use FOS\RestBundle\View\View;
 use KL\ApiBundle\Entity\Groupe;
 use KL\ApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -35,13 +36,13 @@ class UserController extends Controller
     {
         $users = $this->getDoctrine()
             ->getRepository('KLApiBundle:User')
-            ->findAll();
-        //->getUserWithGroups();
+            ->getUsersWithGroups();
+
 
         if (empty($users)) {
             return new JsonResponse(["message", 'Users not found'], Response::HTTP_NOT_FOUND);
         }
-
+        //var_dump($users);
         return $users;
     }
 
@@ -55,14 +56,16 @@ class UserController extends Controller
      */
     public function getUserAction($id, Request $request)
     {
-        $user = $this->getDoctrine()
+        $em = $this->getDoctrine()->getManager();
+        $user = $em
             ->getRepository('KLApiBundle:User')
-            ->find($id);
+            ->getUserWithGroups(array($request->get('user_id'), 'groupe_id'));
 
-        if (empty($user)) {
+
+
+        /*if (empty($user)) {
             return new JsonResponse(["message", 'User not found'], Response::HTTP_NOT_FOUND);
-        }
-
+        }*/
         return $user;
     }
 
@@ -89,22 +92,12 @@ class UserController extends Controller
 
     /**
      * @Rest\View()
-     * @Rest\Put("/users/{id}")
-     */
-    public function putUserAction(Request $request)
-    {
-        return $this->updateUser($request, true);
-    }
-
-    /**
-     * @Rest\View()
      * @Rest\Patch("/users/{id}")
      */
     public function patchUserAction(Request $request)
     {
         return $this->updateUser($request, false);
     }
-
 
     public function updateUser(Request $request, $clearMissing)
     {
@@ -113,7 +106,7 @@ class UserController extends Controller
             ->find($request->get('id'));
 
         if (empty($user)) {
-            return new JsonResponse(["Message" => "User not found"], Response::HTTP_NOT_FOUND);
+            return View::create(['message' => 'Groupe not found'], Response::HTTP_NOT_FOUND);
         }
 
         $form = $this->createForm(UserType::class, $user);
@@ -125,7 +118,8 @@ class UserController extends Controller
             $em->persist($user);
             $em->flush();
             return $user;
-        } else
+        } else {
             return $form;
+        }
     }
 }

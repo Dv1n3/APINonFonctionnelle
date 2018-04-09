@@ -2,6 +2,7 @@
 
 namespace KL\ApiBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\DateType;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -57,8 +58,11 @@ class User
      */
     private $dateCreation;
 
+
+
     /**
-     * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\Groupe", inversedBy="users", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\Groupe", inversedBy="users")
+     * @ORM\JoinTable(name="user_groupe")
      */
     private $groupes;
 
@@ -68,6 +72,7 @@ class User
      */
     public function __construct()
     {
+        //$this->groupes = new ArrayCollection();
         $this->dateCreation = new \DateTime();
     }
 
@@ -207,6 +212,7 @@ class User
     {
         $this->groupes[] = $groupe;
 
+        $groupe->addUser($this);
         return $this;
     }
 
@@ -215,7 +221,7 @@ class User
      *
      * @param \KL\ApiBundle\Entity\Groupe $groupe
      */
-    public function removeGroupe(\KL\ApiBundle\Entity\Groupe $groupe)
+    public function removeGroupe(Groupe $groupe)
     {
         $this->groupes->removeElement($groupe);
     }

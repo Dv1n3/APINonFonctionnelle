@@ -2,6 +2,7 @@
 
 namespace KL\ApiBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -30,17 +31,18 @@ class Groupe
 
     /**
      * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\User", mappedBy="groupes")
+     * @ORM\JoinTable(name="user_groupe")
      */
     private $users;
 
     /**
      * Groupe constructor.
-     * @param string $nom
+     * @param $users
      */
-    /*public function __construct($nom)
+    public function __construct($users)
     {
-        $this->nom = $nom;
-    }*/
+        $this->users = new ArrayCollection();
+    }
 
 
     /**

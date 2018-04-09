@@ -8,9 +8,11 @@
 
 namespace KL\ApiBundle\Controller;
 
+use FOS\RestBundle\View\View;
 use KL\ApiBundle\Entity\Groupe;
 use KL\ApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations\Get;
+use KL\ApiBundle\Form\Type\GroupType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -28,7 +30,7 @@ class GroupController extends Controller
      * @Rest\Get("/groups")
      *
      * @param Request $request
-     * @return JsonResponse|Response
+     * @return View
      */
     public function getGroupsAction(Request $request)
     {
@@ -37,7 +39,7 @@ class GroupController extends Controller
             ->findAll();
 
         if (empty($groups)) {
-            return new JsonResponse(["message", 'Groups not found'], Response::HTTP_NOT_FOUND);
+            return View::create(['message' => 'Groupes not found'], Response::HTTP_NOT_FOUND);
         }
 
         return $groups;
@@ -49,7 +51,7 @@ class GroupController extends Controller
      *
      * @param $id
      * @param Request $request
-     * @return JsonResponse|Response
+     * @return View
      */
     public function getGroupAction($id, Request $request)
     {
@@ -58,7 +60,7 @@ class GroupController extends Controller
             ->find($id);
 
         if (empty($group)) {
-            return new JsonResponse(["message", 'Group not found'], Response::HTTP_NOT_FOUND);
+            return View::create(['message' => 'Groupe not found'], Response::HTTP_NOT_FOUND);
         }
         return $group;
 
@@ -68,7 +70,7 @@ class GroupController extends Controller
      * @Rest\View(statusCode=Response::HTTP_CREATED)
      * @Rest\Post("/groups")
      */
-    public function postGroupssAction(Request $request)
+    public function postGroupsAction(Request $request)
     {
         $groupe = new Groupe();
         $groupe->setNom($request->get('nom'));
@@ -82,17 +84,34 @@ class GroupController extends Controller
 
     /**
      * @Rest\View()
-     * @Rest\Put("/groups/{id]")
+     * @Rest\Patch("/groups/{id}")
      */
-    public function putGroupAction(Request $request)
+    public function patchGroupAction(Request $request)
+    {
+        return $this->updateGroup($request, false);
+    }
+
+
+    public function updateGroup(Request $request, $clearMissing)
     {
         $groupe = $this->getDoctrine()
             ->getRepository('KLApiBundle:Groupe')
             ->find($request->get('id'));
-    if (empty($groupe)){
-        return new JsonResponse(['message' => 'place not found'], Response::HTTP_NOT_FOUND);
-    }
 
+        if (empty($groupe)) {
+            return View::create(['message' => 'Groupe not found'], Response::HTTP_NOT_FOUND);
+        }
 
+        $form = $this->createForm(GroupType::class, $groupe);
+
+        $form->submit($request->request->all(), $clearMissing);
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($groupe);
+            $em->flush();
+            return $groupe;
+        } else
+            return $form;
     }
 }

@@ -10,5 +10,35 @@ namespace KL\ApiBundle\Repository;
  */
 class UserRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getUserWithGroups(array $groupe_list)
+    {
+        $qb = $this
+            ->createQueryBuilder('u')
+            ->join('u.groupes', 'g')
+            ->addSelect('g');
 
+        $qb->where($qb->expr()->in('g.nom', $groupe_list));
+
+        return $qb
+            ->getQuery()
+            ->getResult();
+        //->getResult();
+    }
+
+    public function getUsersWithGroups()
+    {
+        $qb = $this
+            ->createQueryBuilder('u')
+            ->innerJoin('u.groupes', 'g')
+            ->select('u.id')
+            //->addSelect('u.groupes')
+            ->addSelect('u.prenom')
+            ->addSelect('u.nom')
+            ->addSelect('u.email')
+            ->addSelect('u.dateCreation')
+            ->addSelect('u.actif')
+            ->addSelect('g.nom');
+        return $qb->getQuery()
+            ->getResult();
+    }
 }
