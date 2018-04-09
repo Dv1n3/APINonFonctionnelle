@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class GroupController extends Controller
 {
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"group"})
      * @Rest\Get("/groups")
      *
      * @param Request $request
@@ -46,7 +46,7 @@ class GroupController extends Controller
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"group"})
      * @Rest\Get("/groups/{id}")
      *
      * @param $id
@@ -67,13 +67,13 @@ class GroupController extends Controller
     }
 
     /**
-     * @Rest\View(statusCode=Response::HTTP_CREATED)
+     * @Rest\View(statusCode=Response::HTTP_CREATED, serializerGroups={"group"})
      * @Rest\Post("/groups")
      */
     public function postGroupsAction(Request $request)
     {
         $groupe = new Groupe();
-        $groupe->setNom($request->get('nom'));
+        $groupe->setNomGroupe($request->get('nom'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($groupe);
@@ -83,7 +83,7 @@ class GroupController extends Controller
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"group"})
      * @Rest\Patch("/groups/{id}")
      */
     public function patchGroupAction(Request $request)

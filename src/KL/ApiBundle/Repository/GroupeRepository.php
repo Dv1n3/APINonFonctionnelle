@@ -10,5 +10,15 @@ namespace KL\ApiBundle\Repository;
  */
 class GroupeRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getGroups($id)
+    {
 
+    }
+
+    public function myFindGroup($id)
+    {
+
+    }
 }
+
+

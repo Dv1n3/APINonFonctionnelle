@@ -14,6 +14,7 @@ use KL\ApiBundle\Entity\Groupe;
 use KL\ApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations\Get;
 use KL\ApiBundle\Form\Type\UserType;
+use KL\ApiBundle\KLApiBundle;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -27,40 +28,51 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UserController extends Controller
 {
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"user"})
      * @Rest\Get("/users")
      *
-     * @return JsonResponse|Response
      */
-    public function getUsersAction(Request $requests)
+    public function getUsersAction(Request $request)
     {
-        $users = $this->getDoctrine()
+        $listUsers = $this->getDoctrine()
             ->getRepository('KLApiBundle:User')
             ->getUsersWithGroups();
+        //->findAll();
+        //$listGroups = $em->getRepository('KLApiBundle:Groupe');
+        //var_dump($listUsers);
 
 
-        if (empty($users)) {
-            return new JsonResponse(["message", 'Users not found'], Response::HTTP_NOT_FOUND);
-        }
-        //var_dump($users);
-        return $users;
+        return $listUsers;
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"user"})
      * @Rest\Get("/users/{id}")
      *
      * @param $id
      * @param Request $request
-     * @return Response
      */
     public function getUserAction($id, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em
+        $user = $this->getDoctrine()
             ->getRepository('KLApiBundle:User')
-            ->getUserWithGroups(array($request->get('user_id'), 'groupe_id'));
+            ->getUsersWithGroups();
+        //->find($id);
+        //var_dump($user);
+        //$listUser = $repository->findById($id);
 
+        //var_dump($listUser); die;
+
+        /*$group = $em->getRepository('KLApiBundle:Groupe')
+            ->myFindGroup($id);*/
+
+
+        //->getUserWithGroups(array($request->get('user_id'), 'groupe_id'));
+        /*$groups = $this->getDoctrine()->getManager()
+            ->getRepository('KLApiBundle:Groupe')
+            ->getGroups($id);*/
+
+        //var_dump($groups);
 
 
         /*if (empty($user)) {
@@ -70,7 +82,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Rest\View(statusCode=Response::HTTP_CREATED)
+     * @Rest\View(statusCode=Response::HTTP_CREATED, serializerGroups={"user"})
      * @Rest\Post("/users")
      */
     public function postUsersAction(Request $request)
@@ -85,13 +97,14 @@ class UserController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
+
             return $user;
         } else
             return $form;
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"user"})
      * @Rest\Patch("/users/{id}")
      */
     public function patchUserAction(Request $request)

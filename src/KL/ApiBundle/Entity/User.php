@@ -72,7 +72,7 @@ class User
      */
     public function __construct()
     {
-        //$this->groupes = new ArrayCollection();
+        $this->groupes = new ArrayCollection();
         $this->dateCreation = new \DateTime();
     }
 
@@ -211,8 +211,8 @@ class User
     public function addGroupe(Groupe $groupe)
     {
         $this->groupes[] = $groupe;
-
         $groupe->addUser($this);
+
         return $this;
     }
 

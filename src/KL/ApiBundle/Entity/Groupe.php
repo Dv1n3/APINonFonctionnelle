@@ -25,9 +25,9 @@ class Groupe
     /**
      * @var string
      *
-     * @ORM\Column(name="nom", type="string", length=255)
+     * @ORM\Column(name="nomGroupe", type="string", length=255)
      */
-    private $nom;
+    private $nomGroupe;
 
     /**
      * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\User", mappedBy="groupes")
@@ -56,27 +56,26 @@ class Groupe
     }
 
     /**
-     * Set nom
+     * Set nomGroupe
      *
-     * @param string $nom
+     * @param string $nomGroupe
      *
-     * @return Groupe
      */
-    public function setNom($nom)
+    public function setNomGroupe($nomGroupe)
     {
-        $this->nom = $nom;
+        $this->nomGroupe = $nomGroupe;
 
         return $this;
     }
 
     /**
-     * Get nom
+     * Get nomGroupe
      *
      * @return string
      */
-    public function getNom()
+    public function getNomGroupe()
     {
-        return $this->nom;
+        return $this->nomGroupe;
     }
 
     /**
