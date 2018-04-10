@@ -23,7 +23,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this
             ->createQueryBuilder('u')
             ->leftJoin('u.groupes', 'g')
-            ->addSelect('g')
+            //->select('u')
             ->select('u.id')
             ->addSelect('u.prenom')
             ->addSelect('u.nom')
@@ -31,13 +31,26 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             ->addSelect('u.dateCreation')
             ->addSelect('u.actif')
             ->addSelect('g.nomGroupe');
-            //->where('u.id = g.id');
+
 
         return $qb->getQuery()
             ->getResult();
     }
 
-    public function findUserWithGroups(Groupe $groupe){
+    public function getUsersGroup()
+    {
+        $qb = $this
+            ->createQueryBuilder('u')
+            ->join('u.groupes', 'g')
+           // ->select('u')
+            ->addSelect('g.nomGroupe');
+
+        return $qb->getQuery()
+            ->getResult();
+    }
+
+    public function findUserWithGroups(Groupe $groupe)
+    {
         $qb = $this->createQueryBuilder('u');
 
         $qb->where('u.groupes = :groupe')

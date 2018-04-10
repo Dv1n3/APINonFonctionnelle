@@ -35,15 +35,6 @@ class Groupe
      */
     private $users;
 
-    /**
-     * Groupe constructor.
-     * @param $users
-     */
-    public function __construct($users)
-    {
-        $this->users = new ArrayCollection();
-    }
-
 
     /**
      * Get id

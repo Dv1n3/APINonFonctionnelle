@@ -13,6 +13,7 @@ use FOS\RestBundle\View\View;
 use KL\ApiBundle\Entity\Groupe;
 use KL\ApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations\Get;
+use KL\ApiBundle\Form\Type\GroupType;
 use KL\ApiBundle\Form\Type\UserType;
 use KL\ApiBundle\KLApiBundle;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -28,61 +29,40 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UserController extends Controller
 {
     /**
-     * @Rest\View(serializerGroups={"user"})
+     * @Rest\View()
      * @Rest\Get("/users")
      *
      */
     public function getUsersAction(Request $request)
     {
-        $listUsers = $this->getDoctrine()
+        $users = $this->getDoctrine()
             ->getRepository('KLApiBundle:User')
             ->getUsersWithGroups();
-        //->findAll();
-        //$listGroups = $em->getRepository('KLApiBundle:Groupe');
-        //var_dump($listUsers);
-
-
-        return $listUsers;
+        return $users;
     }
 
     /**
-     * @Rest\View(serializerGroups={"user"})
+     * @Rest\View()
      * @Rest\Get("/users/{id}")
      *
      * @param $id
      * @param Request $request
+     * @return User|null|object
      */
     public function getUserAction($id, Request $request)
     {
-        $user = $this->getDoctrine()
-            ->getRepository('KLApiBundle:User')
-            ->getUsersWithGroups();
-        //->find($id);
-        //var_dump($user);
-        //$listUser = $repository->findById($id);
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('KLApiBundle:User')
+            ->find($id);
 
-        //var_dump($listUser); die;
+        $groups = $em->getRepository('KLApiBundle:Groupe')
+            ->findBy(array('id' => $user->getId()));
 
-        /*$group = $em->getRepository('KLApiBundle:Groupe')
-            ->myFindGroup($id);*/
-
-
-        //->getUserWithGroups(array($request->get('user_id'), 'groupe_id'));
-        /*$groups = $this->getDoctrine()->getManager()
-            ->getRepository('KLApiBundle:Groupe')
-            ->getGroups($id);*/
-
-        //var_dump($groups);
-
-
-        /*if (empty($user)) {
-            return new JsonResponse(["message", 'User not found'], Response::HTTP_NOT_FOUND);
-        }*/
         return $user;
     }
 
     /**
-     * @Rest\View(statusCode=Response::HTTP_CREATED, serializerGroups={"user"})
+     * @Rest\View(statusCode=Response::HTTP_CREATED)
      * @Rest\Post("/users")
      */
     public function postUsersAction(Request $request)
@@ -104,7 +84,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Rest\View(serializerGroups={"user"})
+     * @Rest\View()
      * @Rest\Patch("/users/{id}")
      */
     public function patchUserAction(Request $request)
@@ -131,6 +111,52 @@ class UserController extends Controller
             $em->persist($user);
             $em->flush();
             return $user;
+        } else {
+            return $form;
+        }
+    }
+
+
+    /**
+     * @Rest\View()
+     * @Rest\Get("/users/{id}/groups")
+     */
+    public function getGroupsAction(Request $request)
+    {
+        $user = $this->getDoctrine()->getRepository('KLApiBundle:Groupe')
+            ->find($request->get('id'));
+
+        if (empty($user)) {
+            return View::create(['message' => 'Groupes not found'], Response::HTTP_NOT_FOUND);
+        }
+        return $user->getUsers();
+    }
+
+    /**
+     * @Rest\View(statusCode=Response::HTTP_CREATED)
+     * @Rest\Post("/users/{id}/groups")
+     */
+    public function postGroupsAction(Request $request)
+    {
+        $user = $this->getDoctrine()
+            ->getRepository('KLApiBundle:Groupe')
+            ->find($request->get('id'));
+
+        if (empty($user)) {
+            return View::create(['message' => 'Groupes not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $group = new Groupe();
+        //$group->addUser($user);
+        $form = $this->createForm(GroupType::class, $group);
+
+        $form->submit($request->request->all());
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($group);
+            $em->flush();
+            return $group;
         } else {
             return $form;
         }
