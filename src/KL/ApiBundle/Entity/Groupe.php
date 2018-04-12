@@ -2,7 +2,6 @@
 
 namespace KL\ApiBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -64,10 +63,21 @@ class Groupe
      *
      * @return string
      */
-    public function getNomGroupe()
+     public function getNomGroupe()
+     {
+         return $this->nomGroupe;
+     }
+
+    /**
+     * Get getGroupes
+     *
+     * @return string
+     */
+    public function getGroupes()
     {
         return $this->nomGroupe;
     }
+
 
     /**
      * Add user

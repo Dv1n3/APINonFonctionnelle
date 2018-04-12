@@ -6,4 +6,3 @@ kl_api:
 app:
     resource: '@AppBundle/Controller/'
     type: annotation
-

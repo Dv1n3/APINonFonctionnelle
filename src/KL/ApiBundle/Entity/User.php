@@ -61,7 +61,7 @@ class User
 
 
     /**
-     * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\Groupe", inversedBy="users", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity="\KL\ApiBundle\Entity\Groupe", inversedBy="users")
      * @ORM\JoinTable(name="user_groupe")
      */
     private $groupes;

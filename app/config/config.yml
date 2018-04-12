@@ -6,8 +6,7 @@ imports:
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: en
-    jms_serializer.camel_case_naming_strategy.class: JMS\Serializer\Naming\IdenticalPropertyNamingStrategy
+   locale: en
 
 framework:
     #esi: ~
@@ -75,6 +74,8 @@ fos_rest:
     routing_loader:
         include_format: false
     body_converter:
+        enabled: true
+    body_listener:
         enabled: true
     view:
         formats: { json: true, xml: false, rss: false }

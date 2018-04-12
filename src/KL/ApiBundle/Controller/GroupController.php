@@ -10,48 +10,30 @@ namespace KL\ApiBundle\Controller;
 
 use FOS\RestBundle\View\View;
 use KL\ApiBundle\Entity\Groupe;
-use KL\ApiBundle\Entity\User;
-use FOS\RestBundle\Controller\Annotations\Get;
 use KL\ApiBundle\Form\Type\GroupType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 
 class GroupController extends Controller
 {
-    /**
-     * @Rest\View()
-     * @Rest\Get("/groups")
-     *
-     * @param Request $request
-     * @return View
-     */
-    public function getGroupsAction(Request $request)
+    public function __construct()
     {
-        $groups = $this->getDoctrine()
-            ->getRepository('KLApiBundle:Groupe')
-            ->findAll();
+        $encoders = array(new XmlEncoder(), new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
 
-        if (empty($groups)) {
-            return View::create(['message' => 'Groupes not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        return $groups;
+        $serializer = new Serializer($normalizers, $encoders);
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"group"})
      * @Rest\Get("/groups/{id}")
-     *
-     * @param $id
-     * @param Request $request
-     * @return View
      */
     public function getGroupAction($id, Request $request)
     {
@@ -62,12 +44,51 @@ class GroupController extends Controller
         if (empty($group)) {
             return View::create(['message' => 'Groupe not found'], Response::HTTP_NOT_FOUND);
         }
-        return $group;
+        $data = $this->get('serializer')->serialize($group, 'json');
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
 
     }
 
     /**
-     * @Rest\View(statusCode=Response::HTTP_CREATED)
+     * @Rest\View(serializerGroups={"group"})
+     * @Rest\Get("/groups")
+     */
+    public function getGroupsAction(Request $request)
+    {
+        $groups = $this->getDoctrine()
+            ->getRepository('KLApiBundle:Groupe')
+            ->findAll();
+
+        if (empty($groups)) {
+            return View::create(['message' => 'Groupes not found'], Response::HTTP_NOT_FOUND);
+        }
+        //$jsonContent = $this->get('serializer')->serialize($groups, 'json');
+
+        $encoder = new JsonEncoder();
+        $normalizer = new ObjectNormalizer();
+
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            return $object->getGroupes();
+        });
+        $serializer = new Serializer(array($normalizer), array($encoder));
+
+        /* $data = $this->get('serializer');
+        $data = $data->setCircularReferenceLimit(3);
+        $data = $data->serialize($groups, 'json');
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        */
+        return $serializer->serialize($groups, 'json');
+
+    }
+
+    /**
+     * @Rest\View(statusCode=Response::HTTP_CREATED, serializerGroups={"group"})
      * @Rest\Post("/groups")
      */
     public function postGroupsAction(Request $request)
@@ -83,7 +104,7 @@ class GroupController extends Controller
     }
 
     /**
-     * @Rest\View()
+     * @Rest\View(serializerGroups={"group"})
      * @Rest\Patch("/groups/{id}")
      */
     public function patchGroupAction(Request $request)
